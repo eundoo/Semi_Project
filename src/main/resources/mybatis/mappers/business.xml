@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="business">
+	<insert id="insertbusiness" parameterType="com.erp.vo.Business">
+		insert into erp_business
+		(bss_no, bss_title, bss_memo, bss_start_date, bss_end_date, bss_file_name, emp_no, manager_no)
+		values
+		(to_char(sysdate, 'yymm') || '2' || lpad(erp_bss_seq.nextval, 3,0), #{title}, #{memo}, #{startDate}, #{endDate}, #{fileName}, #{empNo}, #{managerNo})
+	</insert>
+	
+	<select id="getAllListByEmpNo" parameterType="string" resultType="com.erp.vo.Business">
+		select
+			bss_no				as no,
+			bss_title 			as title, 
+			bss_memo 			as memo, 
+			bss_start_date 		as startDate, 
+			bss_end_date 		as endDate, 
+			bss_file_name 		as fileName,
+			bss_status 			as status,
+			emp_no 				as empNo,
+			manager_no			as managerNo,
+			bss_created_date	as createdDate
+		from erp_business
+		where emp_no = #{value}
+	</select>
+	
+	<update id="updateBusiness" parameterType="com.erp.vo.Business">
+		update
+			erp_business
+		set 
+			bss_title = #{title},
+			bss_memo = #{memo},
+			bss_file_name = #{fileName},
+			bss_status = #{status},
+			bss_start_date = #{startDate},
+			bss_end_date = #{endDate},
+			manager_no =  #{managerNo}
+		where bss_no = #{no}
+	</update>
+
+	<!-- 6/24일부로 추가해아함 -->
+	<select id="getBssDays" parameterType="string" resultType="int">
+	select (bss_end_date - bss_start_date) + 1
+	from erp_business
+	where bss_no = #{value}
+	</select>
+		
+	<select id="getBusinessByNo" parameterType="string" resultType="com.erp.vo.Business">
+		select bss_no as no,
+			   bss_title as title,
+			   bss_memo as memo,
+			   bss_start_date as startDate,
+			   bss_end_date as endDate,
+			   bss_file_name as fileName,
+			   bss_status as status,
+			   emp_no as empNo,
+			   manager_no as managerNo,
+			   bss_created_date as createdDate
+		from erp_business
+		where bss_no = #{value}
+	</select>
+	
+	<select id="getAllListByDeptNo" parameterType="map" resultType="com.erp.vo.Business">
+		select 
+			   E.dept_no as deptNo,
+			   bss_no as no,
+			   bss_title title,
+			   bss_memo memo,
+			   bss_start_date startDate,
+			   bss_end_date endDate,
+			   bss_file_name fileName,
+			   bss_status status,
+			   E.emp_no empNo,
+			   manager_no managerNo,
+			   bss_created_date as createdDate
+		from erp_business B, erp_employees E
+		where B.emp_no = E.emp_no
+		and E.dept_no = #{deptNo}
+		and B.bss_status = #{status}
+	</select>
+</mapper>
