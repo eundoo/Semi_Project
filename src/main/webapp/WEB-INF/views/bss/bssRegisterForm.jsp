@@ -73,12 +73,20 @@ function formSubmit() {
 		bssStartDate.focus();
 		return false;
 	}
+	
 	var bssEndDate = document.getElementById("bss-end-date");
 	if(!bssEndDate.value.trim()) {
 		alert("종료일은 필수 입력값 입니다.")
 		bssEndDate.focus();
 		return false;
 	}
+	
+	if(bssEndDate.value.replace(/\-/g,'') - bssStartDate.value.replace(/\-/g,'') < 0 ||)
+	{
+		alert("종료일자가 시작일자보다 작을 수 없습니다.");
+		return false;
+	}
+	return true;
 	
 	var confirmValue = confirm("등록 하시겠습니까?")
 	if(!confirmValue) {
