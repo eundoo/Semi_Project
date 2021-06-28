@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
@@ -84,11 +85,13 @@ public class BssRegisterServlet extends HttpServlet{
 		business.setEmpNo(empNo);
 		business.setManagerNo(managerNo);
 		
+		//null equals
 		if(business.getEmpNo().equals(business.getManagerNo())) {
-		business.setManagerNo(empNo);
+			business.setManagerNo(empNo);
 		}
 		
 		BusinessDao businessDao = BusinessDao.getInstance();
+		
 		businessDao.insertBusiness(business);
 		
 		res.sendRedirect("/erp/bss/list");

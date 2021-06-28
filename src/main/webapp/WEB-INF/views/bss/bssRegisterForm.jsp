@@ -26,6 +26,8 @@
 					<form id="business-form" method="post" action="/erp/bss/register" enctype="multipart/form-data" onsubmit="return formSubmit()">
 				 		<div class="form-group">
 				 		<input type="hidden" name="bssNo" value="${business.no }" />
+				 		<input type="hidden" id="pre-start-date" value="${business.startDate}" />
+				 		<input type="hidden" id="pre-end-date" value="${business.endDate}" />
 				   			<label for="formGroupExampleInput">출장 제목</label>
 				   			<input type="text" class="form-control" id="bss-title" name="bssTitle" placeholder="출장제목">
 				 		</div>
@@ -81,12 +83,18 @@ function formSubmit() {
 		return false;
 	}
 	
-	if(bssEndDate.value.replace(/\-/g,'') - bssStartDate.value.replace(/\-/g,'') < 0 ||)
+	if(bssEndDate.value.replace(/\-/g,'') - bssStartDate.value.replace(/\-/g,'') < 0)
 	{
-		alert("종료일자가 시작일자보다 작을 수 없습니다.");
+		alert("종료일자가 시작일자보다 적을 수 없습니다.");
 		return false;
 	}
-	return true;
+	//여기 하고 있었음!!!
+	var preStartDate = document.getElementById("pre-start-date");
+	var bssStartDate = document.getElementById("bss-start-date");
+	if(preStartDate.valueOf() === bssStartDate.valueOf()) {
+		alart("날짜중복이랑께");
+		return false;
+	}
 	
 	var confirmValue = confirm("등록 하시겠습니까?")
 	if(!confirmValue) {
