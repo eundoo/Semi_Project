@@ -22,6 +22,7 @@ public class BusinessDao {
 		return instance;
 	}
 	
+	
 	/**
 	 * 새로운 출장정보를 받아서 db에 저장
 	 * @param business 새 출장정보
@@ -77,6 +78,22 @@ public class BusinessDao {
 		session.close();
 		return business;
 	
+	}
+	
+	public List<Business> getTodayBusiness(int deptNo) {
+		SqlSession session = sqlSessionFactory.openSession();
+		List<Business> business = session.selectList("business.getTodayBusiness", deptNo);
+		session.close();
+		return business;
+		
+	}
+	
+	public List<Business> getAppBusiness(String empNo) {
+		SqlSession session = sqlSessionFactory.openSession();
+		List<Business> business = session.selectList("business.getAppBusiness", empNo);
+		session.close();
+		return business;
+		
 	}
 	
 	/**

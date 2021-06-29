@@ -23,6 +23,14 @@ public class BssListServlet extends HttpServlet{
 		HttpSession session = req.getSession();
 		Employee emp = (Employee)session.getAttribute("LOGINED_EMP");
 		
+		if(emp == null) {
+	         res.sendRedirect("/erp/index?fail=deny");
+	         return;
+	    }
+	      
+		String inserted = req.getParameter("success");
+		System.out.println(inserted);
+		
 		BusinessDao businessDao = BusinessDao.getInstance();
 		List<Business> allBusiness = businessDao.getAllListByEmpNo(emp.getNo());
 		req.setAttribute("business", allBusiness);

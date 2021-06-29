@@ -4,18 +4,18 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
 import com.erp.dao.BusinessDao;
-import com.erp.dao.EmployeeDao;
 import com.erp.util.CommonUtils;
 import com.erp.vo.Business;
 import com.erp.vo.Employee;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,14 +23,22 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 
-@WebServlet("/bss/modify")		//수정폼 서블릿
+@WebServlet("/bss/modify")	
+@MultipartConfig //수정폼 서블릿
 public class BssModifyServlet extends HttpServlet{
 
-	private static final String saveDirectory = "C:\\workspace\\eunhye\\java_web\\erp\\upload";
+	private static final String saveDirectory = "C:\\Users\\jhta\\eclipse-workspace\\upload";
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		
+		HttpSession session = req.getSession();
+		Employee emp = (Employee) session.getAttribute("LOGINED_EMP");
+		 
+		if(emp == null) {
+			res.sendRedirect("/erp/index?fail=deny");
+			return;
+		}
 		
 		String no = req.getParameter("no");
 		
@@ -45,11 +53,6 @@ public class BssModifyServlet extends HttpServlet{
 		/*
 		HttpSession session = req.getSession();
 		Employee emp = (Employee) session.getAttribute("LOGINED_EMP");
-		
-		if(emp == null) {
-			res.sendRedirect("/erp/index?faill=deny");
-			return;
-		}
 		
 		String bssNo = req.getParameter("no");	
 		
@@ -75,8 +78,8 @@ public class BssModifyServlet extends HttpServlet{
 		Date endDate = CommonUtils.stringToDate(req.getParameter("bssEndDate"));
 		Part part = req.getPart("bssFileName");		
 		
-		String fileName =  part.getSubmittedFileName();
-		
+		String fileName =  System.currentTimeMillis() + part.getSubmittedFileName();
+		String empNo = req.getParameter("empNo");	
 		FileOutputStream out = new FileOutputStream(new File(saveDirectory,fileName));
 		InputStream in = part.getInputStream();
 		IOUtils.copy(in, out);
@@ -86,14 +89,54 @@ public class BssModifyServlet extends HttpServlet{
 		Business business = businessDao.getBusinessByNo(no);
 		business.setTitle(title);
 		business.setMemo(memo);
-		business.setStartDate(startDate);
-		business.setEndDate(endDate);
+		
 		business.setFileName(fileName);
 		
-		businessDao.updateBusiness(business);
-		req.setAttribute("business", business);
+		 boolean isInserted = false;
+			List<Business> savedBusiness = businessDao.getAllListByEmpNo(empNo);
+			if(savedBusiness.isEmpty()) {
+				business.setStartDate(startDate);
+				business.setEndDate(endDate);
 				
-		res.sendRedirect("/erp/bss/list");
+				businessDao.updateBusiness(business);
+				req.setAttribute("business", business);
+				isInserted = true;
+				
+			} else {
+				boolean canInsert = true;
+				
+				for (Business busin : savedBusiness) {				
+					if(!((startDate.compareTo(busin.getStartDate()) == 1 && endDate.compareTo(busin.getEndDate()) == 1) 
+						|| (startDate.compareTo(busin.getStartDate()) == -1 && endDate.compareTo(busin.getEndDate()) == -1))) {
+						canInsert = false;
+						break;
+					}
+				}
+				
+				if (canInsert) {
+					business.setStartDate(startDate);
+					business.setEndDate(endDate);
+					
+					businessDao.updateBusiness(business);
+					req.setAttribute("business", business);
+					
+					isInserted = true;
+				}
+				System.err.println("업데이트 되라~~~~~~~~~~~~~~~~");
+			
+			}
+			
+			if (isInserted) {
+				res.sendRedirect("/erp/bss/list?");
+				
+			} else {
+				res.sendRedirect("/erp/bss/modify?success=fail");
+			}
+		
+		
+		
+		
+				
 
 
 	}

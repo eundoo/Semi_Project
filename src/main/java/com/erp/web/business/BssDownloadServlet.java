@@ -11,24 +11,34 @@ import org.apache.commons.io.IOUtils;
 
 import com.erp.dao.BusinessDao;
 import com.erp.vo.Business;
+import com.erp.vo.Employee;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/bss/download")	//파일 다운로드할 수 있는 서블릿
 public class BssDownloadServlet extends HttpServlet {
 
-	private static final String saveDirectory = "C:\\workspace\\eunhye\\java_web\\erp\\upload";
+	private static final String saveDirectory = "C:\\Users\\jhta\\eclipse-workspace\\upload";
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-		String bssNo = req.getParameter("no");
-
-		BusinessDao bDao = BusinessDao.getInstance();
+		
+		HttpSession session = req.getSession();
+	      Employee emp = (Employee) session.getAttribute("LOGINED_EMP");
+	      
+	      if(emp == null) {
+	         res.sendRedirect("/erp/index?fail=deny");
+	         return;
+	      }
+	      
+	    String bssNo = req.getParameter("no");
+	    BusinessDao bDao = BusinessDao.getInstance();
 		Business business = bDao.getBusinessByNo(bssNo);
 		String fileName = business.getFileName();
 

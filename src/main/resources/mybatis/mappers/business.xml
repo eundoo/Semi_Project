@@ -31,10 +31,10 @@
 		set 
 			bss_title = #{title},
 			bss_memo = #{memo},
-			bss_file_name = #{fileName},
-			bss_status = #{status},
 			bss_start_date = #{startDate},
 			bss_end_date = #{endDate},
+			bss_file_name = #{fileName},
+			bss_status = #{status},
 			manager_no =  #{managerNo}
 		where bss_no = #{no}
 	</update>
@@ -45,6 +45,24 @@
 	from erp_business
 	where bss_no = #{value}
 	</select>
+	
+	<select id="getAppBusiness" parameterType="string" resultType="com.erp.vo.Business">
+		select 
+			   bss_no as no,
+			   bss_title title,
+			   bss_memo memo,
+			   bss_start_date startDate,
+			   bss_end_date endDate,
+			   bss_file_name fileName,
+			   bss_status status,
+			   emp_no empNo,
+			   manager_no managerNo,
+			   bss_created_date as createdDate
+		from erp_business B
+        where b.emp_no = #{empNo}
+		and B.bss_status = '승인'
+	</select>
+	
 		
 	<select id="getBusinessByNo" parameterType="string" resultType="com.erp.vo.Business">
 		select bss_no as no,
@@ -78,5 +96,27 @@
 		where B.emp_no = E.emp_no
 		and E.dept_no = #{deptNo}
 		and B.bss_status = #{status}
+	</select>
+	
+	<select id="getTodayBusiness" parameterType="int" resultType="com.erp.vo.Business">
+		select 
+				bss_no as no,
+			   	bss_title as title,
+			   	bss_memo as memo,
+			   	bss_start_date as startDate,
+			   	bss_end_date as endDate,
+			   	bss_file_name as fileName,
+			   	bss_status as status,
+			   	e.emp_no as empNo,
+			   	manager_no as managerNo,
+			   	bss_created_date as createdDate
+		from erp_business b, erp_employees e
+		where b.emp_no = e.emp_no
+		and e.dept_no = #{value}
+		and b.bss_status in ('승인', '완료')
+		<![CDATA[ 
+		and b.bss_start_date <= to_date(to_char(sysdate, 'yyyy/MM/dd'))
+		]]>
+		and b.bss_end_date >= to_date(to_char(sysdate, 'yyyy/MM/dd'))
 	</select>
 </mapper>

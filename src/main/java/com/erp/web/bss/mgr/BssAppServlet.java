@@ -79,7 +79,7 @@ public class BssAppServlet extends HttpServlet{
 		condition.put("month", month);
 		condition.put("empNo", empNo);
 		AttSummary existAttSum = asDao.getAttSummary(condition);
-		if(existAttSum == null) { // 조회한 값ㅅ이 없는경우
+		if(existAttSum == null) { // 조회한 값이 없는경우
 			// 이번달 정보 없으면 생성하셈 다시 승인페이지 재요청
 			AttSummary newAttSummary = new AttSummary();
 			newAttSummary.setEmpNo(empNo);
@@ -135,6 +135,12 @@ public class BssAppServlet extends HttpServlet{
 			newAttSummary.setMonth(String.valueOf(month + 1));
 			newAttSummary.setBusinessDays(bssDays);
 			newAttSummary.setWorkedHours(bssDays*8);
+			System.out.println("7월 새로생성");
+			System.out.println(bssDays*8);
+			System.out.println(bssDays*8);
+			System.out.println(bssDays*8);
+			System.out.println(bssDays*8);
+			System.out.println(bssDays*8);
 			asDao.insertAttSummary(newAttSummary);
 			res.sendRedirect("/erp/bss/applist");
 			return;
@@ -155,6 +161,13 @@ public class BssAppServlet extends HttpServlet{
 			// 기존에 있던 테이블에는 6월분만큼만 +
 			existAttSum.setBusinessDays(existAttSum.getBusinessDays() + compare);
 			existAttSum.setWorkedHours(existAttSum.getWorkedHours() + (compare*8));
+			System.out.println("6월테이블");
+			System.out.println("6월테이블");
+			System.out.println("6월테이블");
+			System.out.println(existAttSum.getWorkedHours() + (compare*8));
+			System.out.println(existAttSum.getWorkedHours() + (compare*8));
+			System.out.println(existAttSum.getWorkedHours() + (compare*8));
+			System.out.println(existAttSum.getWorkedHours() + (compare*8));
 			asDao.updateAttSummary(existAttSum);
 
 			// 7월분은 새로 테이블 생성해서 집어넣기 남은 만큼만
@@ -169,6 +182,12 @@ public class BssAppServlet extends HttpServlet{
 			if(findAttSum != null) {
 				findAttSum.setBusinessDays(findAttSum.getBusinessDays() + (bssDays - compare));
 				findAttSum.setWorkedHours(findAttSum.getWorkedHours() + ((bssDays - compare)*8));
+				System.out.println("7월테이블 있음");
+				System.out.println("7월테이블 있음");
+				System.out.println("7월테이블 있음");
+				System.out.println((bssDays - compare)*8);
+				System.out.println((bssDays - compare)*8);
+				System.out.println((bssDays - compare)*8);
 				asDao.updateAttSummary(findAttSum);
 				res.sendRedirect("/erp/bss/applist");
 				return;
@@ -179,6 +198,14 @@ public class BssAppServlet extends HttpServlet{
 			newAttSummary.setMonth(String.valueOf(month + 1));
 			newAttSummary.setBusinessDays(bssDays - compare);
 			newAttSummary.setWorkedHours((bssDays - compare)*8);
+			System.out.println("7월테이블 없음");
+			System.out.println("7월테이블 없음");
+			System.out.println("7월테이블 없음");
+			System.out.println("7월테이블 없음");
+			System.out.println((bssDays - compare)*8);
+			System.out.println((bssDays - compare)*8);
+			System.out.println((bssDays - compare)*8);
+			System.out.println((bssDays - compare)*8);
 			asDao.insertAttSummary(newAttSummary);
 			res.sendRedirect("/erp/bss/applist");
 			return;

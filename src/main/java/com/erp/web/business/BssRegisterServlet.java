@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -30,13 +29,17 @@ import jakarta.servlet.http.Part;
 @MultipartConfig
 public class BssRegisterServlet extends HttpServlet{
 	
-	private static final String saveDirectory = "C:\\workspace\\eunhye\\java_web\\erp\\upload";
+	private static final String saveDirectory = "C:\\Users\\jhta\\eclipse-workspace\\upload";
 		
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
 		HttpSession session = req.getSession();
 		Employee emp = (Employee) session.getAttribute("LOGINED_EMP");
+		if(emp == null) {
+			res.sendRedirect("/erp/index?fail=deny");
+			return;
+		}
 		String empNo = emp.getNo();
 		
 		EmployeeDao empDao = EmployeeDao.getInstance();
@@ -62,13 +65,12 @@ public class BssRegisterServlet extends HttpServlet{
 		String memo = req.getParameter("bssMemo");
 		Date startDate = CommonUtils.stringToDate(req.getParameter("bssStartDate"));
 		Date endDate = CommonUtils.stringToDate(req.getParameter("bssEndDate"));
-		
 		Part part = req.getPart("bssFileName");		
 		
 		String fileName =  System.currentTimeMillis() + part.getSubmittedFileName();
 		
 		
-		OutputStream out = new FileOutputStream(new File(saveDirectory,fileName));
+		FileOutputStream out = new FileOutputStream(new File(saveDirectory,fileName));
 		InputStream in = part.getInputStream();
 		IOUtils.copy(in, out);
 		out.close();
@@ -79,22 +81,55 @@ public class BssRegisterServlet extends HttpServlet{
 		Business business = new Business();
 		business.setTitle(title);
 		business.setMemo(memo);
-		business.setStartDate(startDate);
-		business.setEndDate(endDate);
+		//business.setStartDate(startDate);
+		//business.setEndDate(endDate); 
 		business.setFileName(fileName);
 		business.setEmpNo(empNo);
 		business.setManagerNo(managerNo);
 		
-		//null equals
 		if(business.getEmpNo().equals(business.getManagerNo())) {
 			business.setManagerNo(empNo);
 		}
 		
 		BusinessDao businessDao = BusinessDao.getInstance();
 		
-		businessDao.insertBusiness(business);
+		boolean isInserted = false;
+		List<Business> savedBusiness = businessDao.getAllListByEmpNo(empNo);
+		if(savedBusiness.isEmpty()) {
+			business.setStartDate(startDate);
+			business.setEndDate(endDate);
+			
+			businessDao.insertBusiness(business);
+			isInserted = true;
+			
+		} else {
+			boolean canInsert = true;
+			
+			for (Business busin : savedBusiness) {				
+				if(!((startDate.compareTo(busin.getStartDate()) == 1 && endDate.compareTo(busin.getEndDate()) == 1) 
+					|| (startDate.compareTo(busin.getStartDate()) == -1 && endDate.compareTo(busin.getEndDate()) == -1))) {
+					canInsert = false;
+					break;
+				}
+			}
+			
+			if (canInsert) {
+				business.setStartDate(startDate);
+				business.setEndDate(endDate);
+
+				businessDao.insertBusiness(business);
+				isInserted = true;
+			}
 		
-		res.sendRedirect("/erp/bss/list");
+		}
+		
+		if (isInserted) {
+			res.sendRedirect("/erp/bss/list?");
+			
+		} else {
+			res.sendRedirect("/erp/bss/register?success=fail");
+		}
+		
 	}
 
 }

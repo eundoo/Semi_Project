@@ -46,7 +46,6 @@ public class BssAppListServlet extends HttpServlet{
 		Department dept = dDao.getDepartmentByNo(deptNo);
 		String deptName = dept.getName();
 		//요청객체에 부서이름과 business 정보들 보냄
-		
 		req.setAttribute("deptName", deptName);
 		req.setAttribute("biss", biss);
 		req.getRequestDispatcher("/WEB-INF/views/bss/bssApprovalList.jsp").forward(req, res);
